@@ -8,6 +8,10 @@
       rel="stylesheet"
       href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.yellow.min.css"
     />
+    <script
+      src="https://challenges.cloudflare.com/turnstile/v0/api.js"
+      async defer
+    ></script>
     <style>
       body {
         min-height: 100vh;
@@ -24,6 +28,12 @@
       #customUrlGroup {
         display: none;
         margin-top: 1rem;
+      }
+
+      .cf-turnstile {
+        margin-top: 1rem;
+        display: flex;
+        justify-content: center;
       }
 
       #result {
@@ -61,6 +71,8 @@
           <small>Letters and numbers only.</small>
         </div>
 
+        <div class="cf-turnstile" data-sitekey="{{.SiteKey}}"></div>
+
         <button type="submit" id="submitBtn">Shorten</button>
       </form>
 
@@ -84,8 +96,10 @@
       form.addEventListener('submit', async (e) => {
         e.preventDefault();
 
-        const url  = urlInput.value;
-        const body = { original_url: url };
+        const turnstileInput = document.querySelector('[name="cf-turnstile-response"]');
+        const turnstileToken = turnstileInput ? turnstileInput.value : '';
+
+        const body = { original_url: urlInput.value, turnstile_token: turnstileToken };
         if (toggle.checked && customInput.value) {
           body.code = customInput.value;
         }
@@ -115,8 +129,8 @@
             a.textContent = shortURL;
 
             const copyBtn = document.createElement('button');
-            copyBtn.textContent      = 'Copy';
-            copyBtn.style.marginTop  = '0.75rem';
+            copyBtn.textContent     = 'Copy';
+            copyBtn.style.marginTop = '0.75rem';
             copyBtn.addEventListener('click', () => {
               navigator.clipboard.writeText(shortURL).then(() => {
                 copyBtn.textContent = 'Copied!';
@@ -137,6 +151,7 @@
           submitBtn.disabled = false;
           urlInput.value     = '';
           customInput.value  = '';
+          if (window.turnstile) window.turnstile.reset();
         }
       });
     </script>

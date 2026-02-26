@@ -22,6 +22,12 @@ func main() {
 	if os.Getenv("POSTGRES_CONNECTION") == "" {
 		log.Fatal("POSTGRES_CONNECTION must be set")
 	}
+	if os.Getenv("TURNSTILE_SECRET_KEY") == "" {
+		log.Fatal("TURNSTILE_SECRET_KEY must be set")
+	}
+	if os.Getenv("TURNSTILE_SITE_KEY") == "" {
+		log.Fatal("TURNSTILE_SITE_KEY must be set")
+	}
 
 	log.Println("Connecting to DB...")
 	models.ConnectDB()
@@ -30,7 +36,9 @@ func main() {
 	r.LoadHTMLGlob("*.html")
 
 	r.GET("/", func(c *gin.Context) {
-		c.HTML(200, "index.html", nil)
+		c.HTML(200, "index.html", gin.H{
+			"SiteKey": os.Getenv("TURNSTILE_SITE_KEY"),
+		})
 	})
 	r.StaticFile("/favicon.ico", "./favicon.svg")
 
@@ -41,14 +49,20 @@ func main() {
 }
 
 type ShortURLInput struct {
-	Code        string `json:"code"         binding:"omitempty,alphanum,max=16"`
-	OriginalURL string `json:"original_url" binding:"required,url"`
+	Code           string `json:"code"            binding:"omitempty,alphanum,max=16"`
+	OriginalURL    string `json:"original_url"    binding:"required,url"`
+	TurnstileToken string `json:"turnstile_token" binding:"required"`
 }
 
 func createShortURL(c *gin.Context) {
 	var input ShortURLInput
 	if err := c.ShouldBindJSON(&input); err != nil {
 		c.JSON(400, gin.H{"error": err.Error()})
+		return
+	}
+
+	if !utils.VerifyTurnstile(os.Getenv("TURNSTILE_SECRET_KEY"), input.TurnstileToken, c.ClientIP()) {
+		c.JSON(400, gin.H{"error": "captcha verification failed"})
 		return
 	}
 
