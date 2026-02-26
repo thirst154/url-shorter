@@ -1,6 +1,8 @@
-# URL Shortener
+# URL Shorter
 
 A URL shortener written in Go.
+
+Deployed at [url.thirst.dev](https://url.thirst.dev)
 
 ## Plan
 
