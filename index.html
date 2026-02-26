@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Thirst URL Shortener</title>
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.yellow.min.css"
+    />
+
+    
+  <style>
+    body {
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+    }
+
+    main {
+      width: 100%;
+      max-width: 350px;
+      text-align: center;
+    }
+
+    #customUrlGroup {
+      display: none;
+      margin-top: 1rem;
+    }
+
+    #result {
+      margin-top: 1.5rem;
+      word-break: break-all;
+    }
+  </style>
+  </head>
+  <body>
+    <main>
+      <h2>🔗 Url Shortener</h2>
+      <p>Build by <a href="https://github.com/thirst154">thirst154</a></p>
+
+      <form id="shortenForm">
+
+      <!-- Long URL -->
+      <input 
+        type="url" 
+        id="urlInput"
+        placeholder="https://example.com/very/long/url"
+        required
+      >
+
+      <!-- Toggle Switch -->
+      <label>
+        <input type="checkbox" id="customToggle" role="switch">
+        Use custom short URL
+      </label>
+
+      <!-- Custom URL Input -->
+      <div id="customUrlGroup">
+        <input 
+          type="text" 
+          id="customInput"
+          placeholder="my-custom-link"
+          pattern="[a-zA-Z0-9\-]+"
+        >
+        <small>Letters, numbers, and dashes only.</small>
+      </div>
+
+      <button type="submit" id="button">Shorten</button>
+    </form>
+    <progress id="progress"/>
+    <div id="result"></div>
+
+    <script>
+      const form = document.getElementById('shortenForm');
+    const input = document.getElementById('urlInput');
+    const toggle = document.getElementById('customToggle');
+    const customGroup = document.getElementById('customUrlGroup');
+    const customInput = document.getElementById('customInput');
+    const result = document.getElementById('result');
+    const progress = document.getElementById('progress');
+    const submitButton = document.getElementById("button");
+
+    toggle.addEventListener('change', () => {
+      customGroup.style.display = toggle.checked ? 'block' : 'none';
+      customInput.required = toggle.checked;
+    });
+
+
+
+
+      progress.style.display = "none";
+
+      form.addEventListener("submit", function (e) {
+        e.preventDefault(); // Prevent page reload
+        submitButton.textContent = "Shortening...";
+        submitButton.disabled = true;
+        toggle.disabled = true;
+        input.value = "";
+        progress.style.display = "block";
+      });
+    </script>
+  </body>
+</html>
